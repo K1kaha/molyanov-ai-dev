@@ -30,16 +30,7 @@ SCALING HINT: If this section grows beyond ~80 lines, extract to references/git-
 ### Branch Structure
 
 - **`main`** - Production-ready code (protected). Only merge from `dev` after full testing. Triggers production deployment.
-- **`dev`** - Active development. Integration branch for all work. Triggers staging deployment.
-- **`feature/XXX-name`** - For complex features (optional). Created from `dev`, merged back via PR, deleted after merge.
-
-### Branch Decision Criteria
-
-**Direct to `dev`:** Bug fixes, single file changes, simple improvements, docs, config changes, no breaking changes.
-
-**Feature branch:** New features, multiple files affected, breaking changes, new dependencies, external integrations, DB schema changes, architecture changes.
-
-Rule of thumb: If unsure → use feature branch (safer).
+- **`dev`** - Active development. All work happens here. Triggers staging deployment.
 
 ### Testing Requirements
 

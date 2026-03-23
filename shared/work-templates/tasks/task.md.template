@@ -75,9 +75,9 @@ teammate_name:                     # косметическое имя тимм�
 
 ## Reviewers
 
-- **code-reviewer** → `logs/working/task-{N}/code-reviewer-{round}.json`
-- **security-auditor** → `logs/working/task-{N}/security-auditor-{round}.json`
-- **test-reviewer** → `logs/working/task-{N}/test-reviewer-{round}.json`
+- **code-reviewer** → `work/{feature}/logs/working/task-{N}/code-reviewer-{round}.json`
+- **security-auditor** → `work/{feature}/logs/working/task-{N}/security-auditor-{round}.json`
+- **test-reviewer** → `work/{feature}/logs/working/task-{N}/test-reviewer-{round}.json`
 
 ## Post-completion
 

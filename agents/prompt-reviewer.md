@@ -28,7 +28,7 @@ Review the provided prompt files against prompt-master principles loaded above.
 
 **Clarity** — Is the task unambiguous? Would a colleague with no context understand what to do?
 
-**Positive framing** — Does it state what to do, not what to avoid? Long prohibition lists?
+**Positive framing** — Defaults to positive instructions? Negatives allowed only for hard boundaries (security, irreversible damage, disambiguation) with motivation. Flag negatives that have a sufficient positive rewrite. Flag long prohibition lists.
 
 **Examples over rules** — Are there few-shot examples instead of paragraph descriptions?
 

@@ -125,8 +125,8 @@ Use Edit tool to replace template placeholders with real content. Content langua
 - Data model (fill if known, leave template sections if TBD)
 
 **patterns.md** — fill git workflow section:
-- Branch structure, branch decision criteria
-- Testing requirements per branch
+- Branch structure (main + dev)
+- Testing requirements
 - Security gates (pre-commit, pre-push)
 - Leave code patterns, testing methods, and business rules sections minimal — filled during development as patterns emerge
 

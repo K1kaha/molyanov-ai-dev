@@ -116,5 +116,5 @@ YES if: NPM package, cross-platform library.
 NO if: single-environment app, internal tool.
 
 **Add staging?**
-YES if: dev branch exists, multi-developer team.
-NO if: solo + main-only, Vercel preview deploys sufficient.
+YES if: project uses main + dev branches (default workflow).
+NO if: Vercel preview deploys sufficient.

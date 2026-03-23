@@ -75,14 +75,23 @@ Check each element against current requirements from user-spec:
 - **Shallow architecture**: everything in one file/function when task scale requires separation? → severity `major`
 - **Shared resource management**: if Architecture lists multiple components using the same heavy resource (ML model, DB pool, API client) but Shared Resources subsection is empty or absent → severity `major`. If Shared Resources is filled but Implementation Tasks have no designated owner task for a listed resource → severity `major`
 
-### 8. Structural integrity
+### 8. User-Spec Deviations integrity
+
+Check the User-Spec Deviations section in tech-spec:
+
+- Every Decision marked `[TECHNICAL]` (not derived from user-spec) must have a corresponding entry in User-Spec Deviations — unless it is a pure infrastructure concern (logging, error handling, migrations). Missing entry → finding type `undocumented_deviation`, severity `critical`
+- Every element flagged as scope creep in steps 4 or 6 — check if it has an entry in User-Spec Deviations. If the deviation is documented → downgrade from `scope_creep` to `documented_deviation` (severity `minor`, for user awareness). If not documented → keep as `scope_creep` (severity `critical`)
+- Every Deviation entry must have a reason. Entry without reason → finding type `unjustified_deviation`, severity `major`
+- Deviations marked `[PENDING USER APPROVAL]` are expected in draft status. Deviations still pending in approved status → finding type `unapproved_deviation`, severity `critical`
+
+### 9. Structural integrity
 
 Check that decision-level content is in the right place:
 - Tech-spec Decisions section should be self-contained. If a task description contains decision-level content (architectural choices, technology picks, approach rationale) that is NOT found in the Decisions section → finding type `structural_gap`, severity `critical`. Decisions scattered across task descriptions are invisible to future readers and reviewers.
 
-### 9. Build report
+### 10. Build report
 
-Assemble findings from steps 3-8 into the output format below. Set status based on pass/fail criteria.
+Assemble findings from steps 3-9 into the output format below. Set status based on pass/fail criteria.
 
 Err on the side of flagging issues. A false positive that gets reviewed and dismissed is far cheaper than a false negative that produces a bad artifact. When in doubt, create a finding.
 
@@ -102,7 +111,7 @@ Err on the side of flagging issues. A false positive that gets reviewed and dism
   "requirements_missing": 1,
   "findings": [
     {
-      "type": "gap | partial | scope_creep | structural_gap | shallow_solution | overengineering | underengineering",
+      "type": "gap | partial | scope_creep | documented_deviation | undocumented_deviation | unjustified_deviation | unapproved_deviation | structural_gap | shallow_solution | overengineering | underengineering",
       "source": "user-spec | tech-spec",
       "requirement": "US-3: Push notifications",
       "detail": "No mechanism for push notification delivery described",
@@ -120,6 +129,6 @@ Err on the side of flagging issues. A false positive that gets reviewed and dism
 
 ### Severity
 
-- **critical** — missing requirement, clear scope creep (new functionality without justification), structural gap (decision-level content outside Decisions section), partial coverage where the missing parts are core to the requirement, shallow solution (tech-spec paraphrases user-spec)
-- **major** — YAGNI abstraction, missing error handling for M/L features, unnecessary layers, shallow architecture, task-level overengineering
-- **minor** — partial coverage of non-core aspects, scope creep that may be justified (optimization, security, infrastructure), premature optimization, boundary conditions not addressed for S features
+- **critical** — missing requirement, undocumented scope creep (new functionality without entry in User-Spec Deviations), undocumented deviation, unapproved deviation in approved spec, structural gap (decision-level content outside Decisions section), partial coverage where the missing parts are core to the requirement, shallow solution (tech-spec paraphrases user-spec)
+- **major** — YAGNI abstraction, missing error handling for M/L features, unnecessary layers, shallow architecture, task-level overengineering, unjustified deviation (entry without reason)
+- **minor** — partial coverage of non-core aspects, documented deviation (scope creep with entry in User-Spec Deviations — for user awareness), premature optimization, boundary conditions not addressed for S features

@@ -10,7 +10,26 @@ description: |
 
 # Feature Execution
 
-Team lead orchestrates feature delivery. You are a dispatcher: spawn agents, track progress, commit code, escalate issues. Delegate all code reading, diff analysis, and report review to spawned agents. Your only inputs are status messages from teammates ("Task complete") and escalation requests.
+## Role Boundary
+
+You are a dispatcher, not a doer. Your job: spawn agents, wait for results, update status, commit orchestration changes, communicate with user.
+
+Allowed actions:
+- Read specs and task frontmatter (for planning)
+- Spawn teammates and reviewers (Agent tool)
+- Send/receive messages (SendMessage)
+- Update frontmatter status fields and checkpoint.yml (Edit)
+- Write execution-plan.md (Write)
+- Git commits for status/orchestration changes (Bash)
+
+Forbidden actions:
+- Writing or editing source code, tests, configs, prompts
+- Running tests, builds, linters, deploys
+- Calling MCP tools for task work (Telegram, browsers, APIs)
+- Debugging errors or "quickly fixing" anything
+- Reading full task content during execution (frontmatter only)
+
+Reason: when the lead does task work, it pollutes context with implementation details, loses orchestration state, and breaks the parallel execution model. Every task — no matter how trivial — gets a spawned teammate.
 
 ## Phase 1: Initialization
 
@@ -50,7 +69,7 @@ Team lead orchestrates feature delivery. You are a dispatcher: spawn agents, tra
 ## Phase 2: Execute Wave
 
 1. Find tasks for current wave: `status: planned`, all `depends_on` tasks are `done`
-2. Update frontmatter: `status: planned` → `status: in_progress`
+2. Update frontmatter: `status: planned` → `status: in_progress`. Read only frontmatter (`limit=15`), then Edit the status field. Do not read full task content.
 3. For each task, spawn **teammate + reviewers** (if task has reviewers):
 
    Use `teammate_name` from task frontmatter as the agent name. If not set — pick a descriptive name based on the task.
@@ -63,7 +82,8 @@ Team lead orchestrates feature delivery. You are a dispatcher: spawn agents, tra
    You are "{name}" executing task {N}.
 
    Read task: {feature_dir}/tasks/{N}.md
-   Load skills listed in task frontmatter. Follow the loaded skill workflow.
+   Load skills listed in task frontmatter. If skills listed — follow the loaded skill workflow.
+   If no skills listed — follow the task instructions directly (the task file contains detailed steps).
 
    If the task requires user actions — send the instruction to team lead via SendMessage.
    Team lead will forward to user and return confirmation.
@@ -99,20 +119,33 @@ Team lead orchestrates feature delivery. You are a dispatcher: spawn agents, tra
 
    If task has `reviewers: none` — skip reviewer spawning. The teammate works independently, commits code with message `feat|fix: task {N} — {brief description}` (tests pass), and reports completion directly to team lead.
 
-   **Each reviewer** (when present) — `subagent_type: "{reviewer_agent}"`, `model: "sonnet"`, `team_name: "{team}"`
+   Every task gets a spawned teammate — even tasks with no skills and no reviewers (operational tasks, MCP interactions, benchmarks, manual steps). The lead never executes task work directly.
+
+   **Each reviewer** (when present) — `subagent_type: "general-purpose"`, `model: "sonnet"`, `team_name: "{team}"`
+
+   Reviewer skill mapping (reviewer name → skill to load):
+   - `code-reviewer` → `code-reviewing`
+   - `security-auditor` → `security-auditor`
+   - `test-reviewer` → `test-master`
+   - `prompt-reviewer` → `prompt-master`
+   - `deploy-reviewer` → `deploy-pipeline`
+   - `infrastructure-reviewer` → `infrastructure-setup`
+   - `skill-checker` → `skill-master`
+   - `documentation-reviewer` → `documentation-writing`
 
    Prompt template:
 
    ```
    You are reviewer "{name}" for task {N}.
 
+   Load your review methodology: Skill(skill="{reviewer_skill}")
    Read specs: {feature_dir}/user-spec.md, {feature_dir}/tech-spec.md
    Read task: {feature_dir}/tasks/{N}.md
 
    Wait for a message from teammate "{teammate_name}" with git diff of changes.
 
    When you receive it:
-   1. Perform your review based on the changed files list and diff provided
+   1. Review changes following the loaded skill methodology
    2. Write JSON report to: {feature_dir}/logs/working/task-{N}/{reviewer_name}-round{round}.json
    3. Send report path to teammate "{teammate_name}" via SendMessage
 
@@ -156,12 +189,11 @@ When lead spawns an agent outside the original execution plan (to fix audit find
 
 ## Phase 3: Wave Transition
 
-1. Verify decisions.md entries exist and match template (`~/.claude/shared/work-templates/decisions.md.template`)
-2. If task had Smoke/User verification steps — confirm decisions.md Verification section includes results. Missing results without explanation → ask user whether to proceed.
-3. Update task frontmatter: `status: in_progress` → `status: done`
-4. Git commit: `chore: complete wave {N} — update task statuses and decisions`. Code is already committed by teammates.
-5. Update `work/{feature}/logs/checkpoint.yml`: set `last_completed_wave`, update task statuses, set `next_wave`.
-6. Next wave → Phase 2
+1. If task had Smoke/User verification steps — confirm teammate reported verification results. Missing results without explanation → ask user whether to proceed.
+2. Update task frontmatter: `status: in_progress` → `status: done`. Read only frontmatter (`limit=15`), then Edit the status field. Do not read full task content.
+3. Git commit: `chore: complete wave {N} — update task statuses and decisions`. Code is already committed by teammates.
+4. Update `work/{feature}/logs/checkpoint.yml`: set `last_completed_wave`, update task statuses, set `next_wave`.
+5. Next wave → Phase 2
 
 **Checkpoint:** all wave tasks done, committed, checkpoint updated.
 
@@ -171,7 +203,7 @@ All waves done including Final Wave (QA, deploy if applicable, post-deploy verif
 
 1. Show results: what was built, key decisions, QA report summary
 2. Describe what to check manually (from execution plan "user checks" section)
-3. Issues found → fix → review → commit (max 3 rounds). If unresolved → escalate (see Escalation).
+3. Issues found → spawn ad-hoc agent to fix (see "Ad-hoc agents" in Phase 2) → review → commit (max 3 rounds). If unresolved → escalate (see Escalation).
 4. All ok → finalize, shutdown team, delete `work/{feature}/logs/checkpoint.yml`
 
 ## Escalation

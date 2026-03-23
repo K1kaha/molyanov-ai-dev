@@ -278,8 +278,7 @@ Feature execution persists state to `checkpoint.yml` after each wave. A `Session
 | `infrastructure-setup` | Framework init, Docker, pre-commit hooks, testing setup |
 | `deploy-pipeline` | CI/CD pipelines, deployment config, automated deploy |
 | `prompt-master` | Effective prompts for LLMs (also an execution skill) |
-| `skill-test-designer` | Design test scenarios for skills |
-| `skill-tester` | Execute skill test scenarios |
+| `skill-tester` | Full skill testing cycle: design scenarios, run, grade, report |
 
 ---
 

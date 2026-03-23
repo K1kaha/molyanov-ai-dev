@@ -2,13 +2,13 @@
 
 <!-- LLM: Insert current date in format: YYYY-MM-DD -->
 **Created:** [DATE]
-**Status:** Feature branch infrastructure ready, deployment pending
+**Status:** Infrastructure ready in dev, deployment pending
 
 ---
 
 ## Current State
 
-<!-- LLM: Describe what's configured in feature branch based on what was actually created.
+<!-- LLM: Describe what's configured in dev branch based on what was actually created.
 List items like:
 - ✅ CI/CD для тестирования (specify which jobs: lint, type-check, tests, build)
 - ✅ Docker для local development (specify: dev only or dev+prod)
@@ -17,20 +17,18 @@ List items like:
 - ✅ Folder structure для нового кода (src/, tests/, etc)
 -->
 
-**Feature branch (`feature/migration-ai-first`):**
+**dev branch:**
 [LLM: List configured infrastructure items here]
 
-<!-- LLM: Confirm that main/dev branches were NOT touched -->
-**main/dev branches:**
-- ⚠️ **НЕ ТРОНУТЫ** (deployments продолжают работать)
+**main branch:**
+- ⚠️ **НЕ ТРОНУТ** (production продолжает работать)
 - Существующие workflows НЕ изменены
-- Production/staging работают как прежде
 
 ---
 
 ## Migration Steps
 
-### Step 1: Рефакторинг в feature ветке
+### Step 1: Рефакторинг в dev
 
 **Текущий этап:** Разработка и рефакторинг legacy кода из `old/` в новую структуру `src/`
 
@@ -42,18 +40,11 @@ List items like:
 
 ---
 
-### Step 2: Merge feature → dev + Deploy Setup
+### Step 2: Deploy Setup (dev → staging)
 
 **После завершения рефакторинга:**
 
-1. **Merge feature → dev:**
-   ```bash
-   git checkout dev
-   git merge feature/migration-ai-first
-   git push origin dev
-   ```
-
-2. **Настроить deployment для dev→staging:**
+1. **Настроить deployment для dev→staging:**
 
 <!-- LLM: Read .claude/skills/project-knowledge/references/deployment.md and fill deployment info:
 - Platform (VPS/Railway/Vercel/Fly.io/etc)
@@ -65,15 +56,14 @@ List items like:
 
    **Staging environment:** [LLM: Insert staging env details from deployment.md]
 
-3. **Обновить CI/CD для dev:**
-   - Отредактировать `.github/workflows/ci-feature.yml` → переименовать в `ci.yml`
+2. **Обновить CI/CD для dev:**
    - Добавить deployment job для dev branch → staging
    - Добавить GitHub secrets (см. ниже)
 
-4. **Создать production Docker config (если ещё нет):**
+3. **Создать production Docker config (если ещё нет):**
    - `docker-compose.prod.yml` (multi-stage build, optimized)
 
-5. **Протестировать на staging:**
+4. **Протестировать на staging:**
    - Push в dev → автодеплой на staging
    - Smoke tests, integration tests
    - User acceptance testing
@@ -159,5 +149,4 @@ If not specified there, provide standard git-based rollback for the platform.
 ## Notes
 
 - 📝 Этот документ обновляется по мере прогресса миграции
-- ⚠️ main branch НЕ ТРОГАТЬ до готовности!
-- ✅ Текущая infrastructure (main/dev) продолжает работать
+- ✅ Вся работа ведётся в dev, затем merge в main для production

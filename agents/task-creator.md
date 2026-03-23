@@ -147,7 +147,8 @@ Files (with current state and what to change — based on reading actual code), 
 
 ### 10. Reviewers
 List of reviewers. For each: name + report path.
-Report path: logs/working/task-{N}/{reviewer-name}-{round}.json
+Report path: {feature_path}/logs/working/task-{N}/{reviewer-name}-{round}.json
+Reason: bare `logs/...` paths resolve from CWD (project root), not from the feature directory. Always anchor to feature_path.
 
 ### 11. Post-completion
 Checklist:

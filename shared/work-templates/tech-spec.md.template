@@ -1,7 +1,7 @@
 ---
 created: YYYY-MM-DD
 status: draft | approved
-branch: dev | feature/{feature-name}
+branch: dev
 size: S | M | L
 ---
 
@@ -85,6 +85,19 @@ Playwright MCP, Telegram MCP, curl, bash — which are needed.
 | Risk | Mitigation |
 |------|-----------|
 | Risk 1 | What we do |
+
+## User-Spec Deviations
+
+<!-- Document every place where tech-spec deviates from, extends, or reinterprets user-spec.
+     Each entry needs: requirement ID, what user-spec says, what tech-spec does, why, approval status.
+     If no deviations — write "None". -->
+
+None
+
+<!-- Example entries:
+- **US-3 (Push notifications):** user-spec says "real-time push", tech-spec uses polling every 5s instead. Reason: push infrastructure adds 2 weeks, polling meets latency requirements. → [PENDING USER APPROVAL]
+- **Added: Rate limiting** (not in user-spec). Reason: public API endpoint needs protection from abuse. → [PENDING USER APPROVAL]
+-->
 
 ## Acceptance Criteria
 

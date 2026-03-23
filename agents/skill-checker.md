@@ -35,7 +35,7 @@ Report what needs to be fixed.
 - [ ] No extra documentation files (README, CHANGELOG, etc.) — only SKILL.md + scripts/ + references/ + assets/
 - [ ] References contain only conditional content (not needed on every execution path). Content needed always → stays in SKILL.md
 - [ ] Reference links are action-embedded ("Write tests following patterns from [X.md]") or conditional ("For tracked changes, see [Y.md]"). No passive catalogs at end of file
-- [ ] Uses positive instructions ("Write in prose" not "Don't use bullet points")
+- [ ] Defaults to positive instructions. Negatives allowed only for hard boundaries (security, irreversible damage, disambiguation, scope limits) and must include motivation. Flag negatives that have a sufficient positive rewrite
 - [ ] Emphasis words (CRITICAL, MANDATORY, NEVER, ALWAYS, MUST) — maximum one per skill, ideal zero
 - [ ] Skill directory name matches `name` field in frontmatter
 

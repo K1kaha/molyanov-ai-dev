@@ -13,9 +13,11 @@ Execute a spec-driven task with validation and status tracking.
 
 1. Read task file (user provides path or task number)
    - If user didn't specify → ask: "Which task to execute?"
-2. Verify task status is `planned` (if not → ask user before proceeding)
-3. Update task frontmatter: `status: planned` → `status: in_progress`
-4. Read every file listed in the task's "Context Files" section
+2. Derive feature directory from task path: `work/{feature}/tasks/N.md` → `work/{feature}/`
+   All `logs/` paths in the task (Reviewers section, What to do, Acceptance Criteria) are relative to this feature directory. Resolve them as `{feature_dir}/logs/...` when creating files.
+3. Verify task status is `planned` (if not → ask user before proceeding)
+4. Update task frontmatter: `status: planned` → `status: in_progress`
+5. Read every file listed in the task's "Context Files" section
 
 ## Step 2: Execute
 
@@ -28,7 +30,7 @@ Execute a spec-driven task with validation and status tracking.
    1. Spawn subagent via Task tool (subagent_type = reviewer name, e.g. `code-reviewer`)
    2. Pass: git diff of changes, path to task file, path to tech-spec, path to user-spec
    3. Reviewer loads its own skill automatically (via agent frontmatter `skills:`)
-   4. Report is written to the path specified in the task's "Reviewers" section
+   4. Report is written to the path specified in the task's "Reviewers" section, resolved relative to the feature directory (e.g., `logs/working/task-1/...` → `{feature_dir}/logs/working/task-1/...`)
    5. Read report. If findings exist → fix, re-run tests, git commit: `fix: address review round {N} for task {N}`, repeat (max 3 rounds)
 
 ## Step 3: Verify

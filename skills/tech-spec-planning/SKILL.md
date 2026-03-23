@@ -69,10 +69,12 @@ Analyze if additional information is needed based on user-spec and code research
    - `created`: today's date
    - `status`: draft
    - `size`: copy from user-spec (S|M|L)
-   - `branch`: `dev` (simple change, single component) or `feature/{name}` (multiple components, architectural changes)
+   - `branch`: `dev`
 
 3. Fill all template sections. The template defines section structure — follow it directly.
    In Architecture → Shared Resources: list heavy resources (ML models, DB pools, browser instances, API clients) shared across components. Specify owner (who creates), consumers, instance count. If none — write "None".
+
+   **User-spec anchoring:** Every decision in the Decisions section must reference a user-spec requirement it serves (e.g., "Supports US-3: push notifications"). If a decision is purely technical (not derived from any user-spec requirement) — mark it `[TECHNICAL]` with justification. If a decision contradicts or changes a user-spec requirement — document it in the User-Spec Deviations section and mark as `[PENDING USER APPROVAL]`. All deviations must be documented explicitly — this preserves the user's original intent for review.
 
 4. Fill Implementation Tasks by waves. For each task provide: Description, Skill, Reviewers, Verify-smoke (optional), Verify-user (optional), Files to modify, Files to read. Select skill and reviewers from [skills-and-reviewers.md](references/skills-and-reviewers.md) (execution skills catalog, reviewer agents, default mappings).
 
@@ -106,15 +108,19 @@ Analyze if additional information is needed based on user-spec and code research
    - **Post-deploy verification** (skill: `post-deploy-qa`) — only if live-environment checks are needed (MCP tools listed in Agent Verification Plan → Tools required).
    QA is mandatory. Deploy and post-deploy — if applicable.
 
-6. Task Count Check: if >15 tasks — propose splitting into MVP + Extension phases. Wait for user decision.
+6. Fill User-Spec Deviations section. For each element in tech-spec that changes, extends, or contradicts user-spec — add an entry with the requirement ID, what user-spec says, what tech-spec does differently, and why. Mark each entry `[PENDING USER APPROVAL]`. If no deviations — write "None".
 
-7. Git commit: `draft(techspec): create tech-spec for {feature}`
+7. Task Count Check: if >15 tasks — propose splitting into MVP + Extension phases. Wait for user decision.
+
+8. Git commit: `draft(techspec): create tech-spec for {feature}`
 
 **Checkpoint:**
 - [ ] tech-spec.md created in work/{feature}/ with all sections
 - [ ] Implementation Tasks include Description (2-3 sentences), skill, reviewers for each task
 - [ ] No AC or TDD anchors in tasks (those come from task-decomposition phase)
 - [ ] Technical decisions are in Decisions section, not in task descriptions
+- [ ] Every Decision references a user-spec requirement or is marked `[TECHNICAL]`
+- [ ] User-Spec Deviations section filled (or "None")
 - [ ] Final Wave present with QA (mandatory) + Deploy/Post-deploy (if applicable)
 - [ ] Task count ≤15 (or user approved larger scope)
 
@@ -137,9 +143,10 @@ Pass to each validator: `work/{feature}/tech-spec.md` + `work/{feature}/user-spe
 ### Process findings
 
 Read all 5 reports. For each finding:
-- Fix if clearly valid
-- Reject with reasoning if disagree
-- Discuss with user if controversial
+- Fix if clearly valid (typos, missing sections, structural issues)
+- Reject with reasoning if disagree — only for findings unrelated to user-spec alignment
+
+**User-spec alignment findings require user decision.** When completeness-validator reports `gap`, `scope_creep`, `overengineering`, or `shallow_solution` — present each finding to the user with your recommendation (fix / keep / adjust). Reason: these findings mean the tech-spec may contradict what the user asked for — only the user can decide whether the deviation is acceptable.
 
 ### Iterate if needed (up to 3 iterations)
 

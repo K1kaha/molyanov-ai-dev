@@ -3,7 +3,8 @@ name: skill-master
 description: |
   Guide for creating/updating skills with specialized knowledge and workflows.
 
-  Use when: "создай скилл", "измени скилл", "гайд по скиллам", "обнови скилл", "улучши скилл"
+  Use when: "создай скилл", "измени скилл", "гайд по скиллам", "обнови скилл", "улучши скилл",
+  "create skill", "update skill", "skill guide", "new skill", "how to write a skill"
 ---
 
 # Skill Creator
@@ -52,6 +53,8 @@ For new skills or major changes — run discovery interview:
 - Concrete usage examples
 
 **When running user interview**, read [interview-guide.md](references/interview-guide.md) — process overview, example questions for each phase, handling "I don't know" answers.
+
+**Checkpoint:** Requirements gathered. Problem, triggers, scope, and examples documented.
 
 ## 2. Skill Structure
 
@@ -121,7 +124,25 @@ Why good: Specific actions, concrete trigger phrases.
 2. Ask: "How would different users phrase this request?"
 3. Include: Common typos, informal variants, both Russian and English if applicable
 
-For optional fields, see [frontmatter-options.md](references/frontmatter-options.md) — argument-hint, disable-model-invocation, allowed-tools, model override.
+#### Undertriggering Problem
+
+Claude tends to undertrigger skills — not use them when they'd be useful. To combat this, make descriptions slightly "pushy": explicitly list contexts and keywords that should activate the skill, even non-obvious ones.
+
+**Instead of:**
+```yaml
+description: How to build a dashboard to display data.
+```
+
+**Write:**
+```yaml
+description: |
+  How to build a dashboard to display data. Use this skill whenever
+  the user mentions dashboards, data visualization, internal metrics,
+  or wants to display any kind of data, even if they don't explicitly
+  ask for a "dashboard".
+```
+
+**Need argument-hint, disable-model-invocation, or model override?** Read [frontmatter-options.md](references/frontmatter-options.md) — optional fields and when to use each.
 
 ### Body
 
@@ -131,6 +152,8 @@ Every SKILL.md body consists of:
 - Keep under 500 lines (otherwise → split to references)
 
 **When defining output format**, read [output-patterns.md](references/output-patterns.md) — template pattern, examples pattern.
+
+**Checkpoint:** SKILL.md created with frontmatter, body, and references. Skill structure complete.
 
 ### Bundled Resources
 
@@ -148,6 +171,8 @@ Executable code (Python/Bash/etc.) for tasks that require deterministic reliabil
 **Concrete example:** When building a `pdf-editor` skill for queries like "Help me rotate this PDF":
 1. Rotating a PDF requires re-writing the same code each time
 2. A `scripts/rotate_pdf.py` script solves this — write once, execute many times
+
+**How to spot script candidates:** After running test cases, read the transcripts. If all test runs independently wrote similar helper code (e.g., each created a `create_docx.py`), that's a strong signal to bundle that script. Write once, use on every invocation.
 
 #### References (`references/`)
 
@@ -228,6 +253,18 @@ The context window is a public good. Skills share the context window with everyt
 **Default assumption: Claude is already very smart.** Only add context Claude doesn't already have. Challenge each piece of information: "Does Claude really need this explanation?" and "Does this paragraph justify its token cost?"
 
 Prefer concise examples over verbose explanations.
+
+### Keep it Lean
+
+Remove things that aren't pulling their weight. After running test cases, read the transcripts — not just the final outputs. If the skill is making the model waste time doing unproductive things, remove those parts of the skill.
+
+Every instruction has a cost. If removing an instruction doesn't degrade results, it was dead weight.
+
+### Generalize, Don't Overfit
+
+Skills are used across many different prompts and contexts. When iterating on a skill based on test results, resist fiddly changes targeted at specific examples. Rather than oppressively constrictive rules, try branching out — use different metaphors, recommend different patterns of working. It's cheap to try and you might land on something better.
+
+If a skill works only for its test cases, it's useless at scale.
 
 ### Degrees of Freedom
 
@@ -312,19 +349,34 @@ For tracked changes, see [REDLINING.md](REDLINING.md) — revision marks, accept
 - Keep references one level deep from SKILL.md
 - For files longer than 100 lines, include a table of contents at the top
 
+### Writing Approach
+
+Start by writing a draft, then look at it with fresh eyes and improve. Use theory of mind — make the skill general, not super-narrow to specific examples. Try to explain to the model why things are important in lieu of heavy-handed constraints.
+
 ### Positive over Negative
 
-Claude follows positive instructions better. Negative ("don't do X") often ignored.
+Default to positive instructions — they're followed more reliably. Rewrite negatives when the positive form fully conveys the meaning.
 
-**Bad:** "Don't use bullet points. Never include examples. Avoid long explanations."
-**Good:** "Write in prose paragraphs. Keep explanations to 2-3 sentences."
+**Rewrite when positive form is sufficient:**
+- "Don't use bullet points" → "Write in prose paragraphs"
+- "Don't use var" → "Use const/let"
 
-### Add Motivation
+**Keep negatives for hard boundaries** where the positive rewrite loses the prohibition:
+- Security: "Store secrets in .env" alone doesn't convey "never commit them to git" — you need both
+- Irreversible damage: "Don't use `--force` on shared branches" — the cost of violation is high
+- Disambiguation: "Use `Array.from()`, not spread for NodeList" — negative clarifies which similar option is wrong
+- Scope limits: "This skill does not handle deployment" — defines boundary
 
-When Claude understands WHY a rule matters, it follows more reliably.
+**Test:** "Does the positive rewrite fully convey the prohibition?" If no → keep the negative + add motivation (WHY it matters).
+
+### Explain the Why
+
+Today's LLMs are smart. They have good theory of mind and when given a good harness can go beyond rote instructions. Try to explain the **why** behind everything you're asking the model to do. Even if user feedback is terse, try to actually understand the task and why the user wrote what they wrote, then transmit this understanding into the instructions.
 
 **Bad:** "Always return JSON format."
-**Good:** "Return findings as JSON. Reason: orchestrator parses this automatically. Invalid JSON crashes pipeline."
+**Good:** "Return findings as JSON — orchestrator parses this automatically, invalid JSON crashes pipeline."
+
+When explaining is impractical, keep the rule as-is. But default to reasoning over commanding.
 
 ### Avoid Emphasis Words
 
@@ -337,17 +389,18 @@ Words like CRITICAL, MANDATORY, NEVER, IMPORTANT, MUST are anti-patterns in skil
 
 **What to do instead:**
 - Write clear, specific instructions
-- Add motivation (WHY something matters)
+- Explain why something matters (see "Explain the Why" above)
 - Use structure (steps, checkpoints) to ensure compliance
+
+If you find yourself writing ALWAYS or NEVER in all caps, that's a yellow flag — reframe and explain the reasoning so that the model understands why the thing you're asking for is important.
 
 **Hard limit:** Maximum one emphasis word per skill. Ideal: zero.
 
 ### Delegating Heavy Work
 
 If skill has context-heavy tasks (reviews, research, validation):
-- Don't put everything in one skill
-- Create separate skills for methodology
-- Create agents that preload these skills
+- Keep each skill focused on a single methodology
+- Delegate heavy subtasks to agents with fresh context
 - Orchestrator calls agents → they work isolated → return results
 
 **When to use subagents:**
@@ -375,6 +428,8 @@ If skill has context-heavy tasks (reviews, research, validation):
 
 **Delegating work to subagent?** Read [agents.md](references/agents.md) — inline prompts, dedicated agents, output contracts.
 
+**Checkpoint:** Writing guidelines applied. Skill is concise, well-structured, references linked properly.
+
 ## 4. Validation
 
 ### Run skill-checker
@@ -388,6 +443,10 @@ If issues found → fix them → run skill-checker again.
 
 skill-checker is defined in `~/.claude/agents/skill-checker.md` and has skill-master preloaded.
 
+### Test the Skill
+
+After creating or significantly updating a skill, suggest to the user to run skill-tester on it. skill-tester will design test cases, run them with and without the skill, test description triggering accuracy, and produce a report with specific improvement recommendations.
+
 ### Self-Check Before Validation
 
 **Universal (all skills):**
@@ -398,7 +457,7 @@ skill-checker is defined in `~/.claude/agents/skill-checker.md` and has skill-ma
 - [ ] No extra docs (README, CHANGELOG)
 - [ ] References contain only conditional content (not needed on every execution path)
 - [ ] References linked as action steps or with condition + contents (no passive links, no resource catalogs at end of file)
-- [ ] Uses positive instructions (not "don't do X")
+- [ ] Defaults to positive instructions. Negatives only for hard boundaries (security, irreversible damage, disambiguation, scope limits) with motivation
 - [ ] No emphasis words (CRITICAL, MANDATORY, NEVER) — max one allowed
 
 **Identify skill type:** procedural or informational?

@@ -33,7 +33,7 @@ Validate against criteria below. For each violation, create a finding.
 
 - `created` — date in YYYY-MM-DD format
 - `status` — only `draft` or `approved`
-- `branch` — filled (not empty, not placeholder)
+- `branch` — must be `dev`
 - `size` — only `S`, `M`, or `L`
 
 ## 2. Structure (all sections present and non-empty)

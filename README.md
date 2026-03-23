@@ -150,8 +150,7 @@ work/{feature}/
 Фреймворк расширяется через создание новых skills в таком же стиле:
 
 - **`skill-master`** — гайд и правила по созданию skills: структура, паттерны, типы (процедурные и информационные), шаблоны
-- **`skill-test-designer`** — проектирование тестовых сценариев для skills через интервью
-- **`skill-tester`** — запуск тестовых сценариев с параллельными раннерами (демо-версия, в разработке)
+- **`skill-tester`** — полный цикл тестирования skills: проектирование сценариев, запуск с параллельными раннерами, оценка, отчёт
 
 ---
 
@@ -245,8 +244,7 @@ work/{feature}/
 | Skill | Назначение |
 |---|---|
 | `skill-master` | Создание и обновление skills: структура, паттерны, правила |
-| `skill-test-designer` | Проектирование тестовых сценариев для skills через интервью |
-| `skill-tester` | Запуск тестовых сценариев (демо-версия) |
+| `skill-tester` | Полный цикл тестирования skills: проектирование сценариев, запуск, оценка, отчёт |
 
 ---
 
@@ -259,7 +257,7 @@ work/{feature}/
 | `templates/new-project/` | Шаблон нового проекта: структура `.claude/`, Project Knowledge файлы, CLAUDE.md, .gitignore. Используется командой `/init-project` |
 | `templates/infrastructure/` | Шаблоны инфраструктуры (Docker, CI/CD конфиги). Используются скиллом `infrastructure-setup` |
 | `work-templates/` | Шаблоны рабочих документов: `user-spec.md.template`, `tech-spec.md.template`, `task.md.template`, `decisions.md.template`, `checkpoint.yml.template`, `execution-plan.md.template`. Скиллы копируют их при создании новых спеков и задач |
-| `interview-templates/` | Структуры интервью для скиллов планирования: `feature.yml` (для user-spec), `skill.yml` (для skill-test-designer) |
+| `interview-templates/` | Структуры интервью для скиллов планирования: `feature.yml` (для user-spec), `skill.yml` (для skill-tester) |
 | `scripts/` | Вспомогательные скрипты: `init-feature-folder.sh` — создание work-директории для новой фичи |
 
 ---

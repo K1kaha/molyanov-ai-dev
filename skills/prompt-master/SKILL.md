@@ -38,16 +38,20 @@ After:
 
 ### Positive framing
 
-State what you want, not what to avoid. Models follow positive instructions more reliably. Long prohibition lists get ignored — they add tokens without adding clarity.
+Default to stating what you want, not what to avoid. Models follow positive instructions more reliably. Long prohibition lists get ignored — they add tokens without adding clarity.
 
 ```
-Before:
-  Don't use bullet points. Never include code examples.
-  Avoid long explanations. Don't use jargon.
+Rewrite when positive form is sufficient:
+  Before: Don't use bullet points. Never include code examples.
+  After:  Write in prose paragraphs, 2-3 sentences each.
 
-After:
-  Write in prose paragraphs, 2-3 sentences each.
-  Use plain language accessible to non-technical readers.
+Keep negatives for hard boundaries where positive rewrite loses the prohibition:
+  "Return data as JSON. Do not include markdown fences around it."
+  — positive alone ("Return raw JSON") may not prevent the common mistake.
+
+Test: does the positive rewrite fully convey the prohibition?
+  Yes → rewrite positively.
+  No  → keep negative + add reason why it matters.
 ```
 
 ### Examples over rules
@@ -184,7 +188,7 @@ How to improve a prompt that isn't working well:
 | Instead of | Do this | Why |
 |------------|---------|-----|
 | Emphasis words (CAPS, "NEVER", "ALWAYS") | One sentence explaining motivation | When everything screams, nothing stands out |
-| Lists of prohibitions | State desired behavior | Positive framing is followed more reliably |
+| Lists of prohibitions | State desired behavior; keep negatives only for hard boundaries + motivation | Positive framing is followed more reliably |
 | "Act as a world-class expert..." | Provide context + success criteria | Flattery adds tokens without adding signal |
 | One mega-prompt with many tasks | Chain of 3-4 focused prompts | Each step gets full model attention |
 | Filler ("please", "make sure", "I want you to") | Direct instruction | Fewer tokens = less noise |
